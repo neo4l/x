@@ -66,22 +66,6 @@ func HttpGet(client *http.Client, reqUrl string) (map[string]interface{}, error)
 	return bodyDataMap, nil
 }
 
-func HttpGet1(client *http.Client, reqUrl string, reply *interface{}) error {
-	respData, err := NewHttpRequest(client, "GET", reqUrl, "", nil)
-	if err != nil {
-		return err
-	}
-
-	//var bodyDataMap map[string]interface{}
-	//fmt.Printf("\n%s\n", respData);
-	err = json.Unmarshal(respData, reply)
-	if err != nil {
-		log.Println(string(respData))
-		return err
-	}
-	return nil
-}
-
 func HttpGet2(client *http.Client, reqUrl string, headers map[string]string) (map[string]interface{}, error) {
 	if headers == nil {
 		headers = map[string]string{}
