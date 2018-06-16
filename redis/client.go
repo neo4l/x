@@ -1,54 +1,46 @@
 package redis
 
 import (
-	"andui/conf"
-	//"fmt"
 	"time"
 
 	"github.com/go-redis/redis"
 )
 
-func NewClient() (*redis.Client, error) {
-	client := redis.NewClient(&redis.Options{
-		Addr:     conf.Redis_Host,
-		Password: conf.Redis_Password, // no password set
-		DB:       0,                   // use default DB
+type RedisClient struct {
+	client *redis.Client
+}
+
+func NewClient(host, passwd string) (*RedisClient, error) {
+	return NewClient2(host, passwd, 0)
+}
+
+func NewClient2(host, passwd string, db int) (*RedisClient, error) {
+	newClient := redis.NewClient(&redis.Options{
+		Addr:     host,
+		Password: passwd, // no password set
+		DB:       db,     // use default DB
 	})
 
-	_, err := client.Ping().Result()
+	_, err := newClient.Ping().Result()
 	//fmt.Println(pong, err)
-
-	return client, err
+	if err != nil {
+		return nil, err
+	}
+	return &RedisClient{client: newClient}, err
 }
 
-func Get(key string) (string, error) {
-	rc, err := NewClient()
-	//fmt.Printf("newClient: %s\n", err)
-	if err != nil {
-		return "", err
-	}
-	defer rc.Close()
-
-	return rc.Get(key).Result()
+func (self *RedisClient) Get(key string) (string, error) {
+	return self.client.Get(key).Result()
 }
 
-func Set(key string, value interface{}, expir time.Duration) error {
-	rc, err := NewClient()
-	if err != nil {
-		return err
-	}
-
-	defer rc.Close()
-
-	return rc.Set(key, value, expir).Err()
+func (self *RedisClient) Set(key string, value interface{}, expir time.Duration) error {
+	return self.client.Set(key, value, expir).Err()
 }
 
-func Expire(key string, expir time.Duration) error {
-	rc, err := NewClient()
-	if err != nil {
-		return err
-	}
-	defer rc.Close()
+func (self *RedisClient) Expire(key string, expir time.Duration) error {
+	return self.client.Expire(key, expir).Err()
+}
 
-	return rc.Expire(key, expir).Err()
+func (self *RedisClient) Close() error {
+	return self.client.Close()
 }
