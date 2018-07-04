@@ -6,12 +6,18 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
+var (
+	Default_MaxIdle   = 5
+	Default_MaxActive = 40
+	Default_Timeout   = 180 * time.Second
+)
+
 type RedisClient struct {
 	redisPool *redis.Pool
 }
 
 func NewClient(host, passwd string, db int) *RedisClient {
-	return NewClient2(host, passwd, db, 5, 40, 180*time.Second)
+	return NewClient2(host, passwd, db, Default_MaxIdle, Default_MaxActive, Default_Timeout)
 }
 
 func NewClient2(host, passwd string, db, maxIdle, maxActive int, timeout time.Duration) *RedisClient {
