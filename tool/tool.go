@@ -6,6 +6,7 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -221,6 +222,16 @@ func ReadJsonFile(fileName string) (map[string]interface{}, error) {
 	}
 
 	return jsonObj, nil
+}
+
+func ID() string {
+	b := make([]byte, 48)
+
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		return ""
+	}
+	bytes := Md5Hash(b)
+	return hex.EncodeToString(bytes)
 }
 
 func UUID() string {

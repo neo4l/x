@@ -105,7 +105,9 @@ func HttpGet3(client *http.Client, reqUrl string, headers map[string]string) ([]
 }
 func HttpPostForm(client *http.Client, reqUrl string, postData url.Values) ([]byte, error) {
 	headers := map[string]string{
-		"Content-Type": "application/x-www-form-urlencoded"}
+		"Content-Type": "application/x-www-form-urlencoded",
+		"Device":       "iOS",
+		"version":      "1.2.0"}
 	return NewHttpRequest(client, "POST", reqUrl, postData.Encode(), headers)
 }
 

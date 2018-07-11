@@ -3,44 +3,69 @@ package redis
 import (
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/gomodule/redigo/redis"
+)
+
+var (
+	Default_MaxIdle   = 5
+	Default_MaxActive = 40
+	Default_Timeout   = 180 * time.Second
 )
 
 type RedisClient struct {
-	client *redis.Client
+	redisPool *redis.Pool
 }
 
-func NewClient(host, passwd string) (*RedisClient, error) {
-	return NewClient2(host, passwd, 0)
+func NewClient(host, passwd string, db int) *RedisClient {
+	return NewClient2(host, passwd, db, Default_MaxIdle, Default_MaxActive, Default_Timeout)
 }
 
-func NewClient2(host, passwd string, db int) (*RedisClient, error) {
-	newClient := redis.NewClient(&redis.Options{
-		Addr:     host,
-		Password: passwd, // no password set
-		DB:       db,     // use default DB
-	})
-
-	_, err := newClient.Ping().Result()
-	//fmt.Println(pong, err)
-	if err != nil {
-		return nil, err
+func NewClient2(host, passwd string, db, maxIdle, maxActive int, timeout time.Duration) *RedisClient {
+	pool := &redis.Pool{
+		// 从配置文件获取maxidle以及maxactive，取不到则用后面的默认值
+		MaxIdle:     maxIdle,
+		MaxActive:   maxActive,
+		IdleTimeout: timeout,
+		Dial: func() (redis.Conn, error) {
+			options := []redis.DialOption{redis.DialPassword(passwd), redis.DialDatabase(db)}
+			c, err := redis.Dial("tcp", host, options...)
+			if err != nil {
+				return nil, err
+			}
+			return c, nil
+		},
 	}
-	return &RedisClient{client: newClient}, err
+	return &RedisClient{pool}
 }
 
 func (self *RedisClient) Get(key string) (string, error) {
-	return self.client.Get(key).Result()
+	rc := self.redisPool.Get()
+	defer rc.Close()
+
+	return redis.String(rc.Do("GET", key))
 }
 
-func (self *RedisClient) Set(key string, value interface{}, expir time.Duration) error {
-	return self.client.Set(key, value, expir).Err()
+func (self *RedisClient) Exists(key string) (bool, error) {
+	rc := self.redisPool.Get()
+	defer rc.Close()
+
+	return redis.Bool(rc.Do("EXISTS", key))
 }
 
-func (self *RedisClient) Expire(key string, expir time.Duration) error {
-	return self.client.Expire(key, expir).Err()
+func (self *RedisClient) Set(key string, value string) (string, error) {
+	rc := self.redisPool.Get()
+	defer rc.Close()
+
+	return redis.String(rc.Do("SET", key, value))
+}
+
+func (self *RedisClient) SetWithExpire(key string, value string, expireTime int) (string, error) {
+	rc := self.redisPool.Get()
+	defer rc.Close()
+
+	return redis.String(rc.Do("SET", key, value, "EX", expireTime))
 }
 
 func (self *RedisClient) Close() error {
-	return self.client.Close()
+	return self.redisPool.Close()
 }

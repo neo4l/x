@@ -1,15 +1,18 @@
 package network
 
 import (
-	"fmt"
 	"bytes"
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"sort"
-	"andui/crypto/rsa"
-	"andui/crypto"
+
+	"github.com/neo4l/x/crypto"
+	"github.com/neo4l/x/crypto/rsa"
+	// "andui/crypto/rsa"
+	// "andui/crypto"
 	//"encoding/hex"
 )
 
@@ -66,7 +69,7 @@ func ParamToString(params map[string]string) string {
 	return pstr
 }
 
-func Hamcsha256SignParam(secret string, params map[string]string) (sign string,err error) {
+func Hamcsha256SignParam(secret string, params map[string]string) (sign string, err error) {
 	data := ParamToString(params)
 	fmt.Printf("data: %s\n", data)
 	return Hamcsha256Sign(secret, data)
@@ -76,10 +79,10 @@ func Hamcsha256Sign(secret, data string) (sign string, err error) {
 	return crypto.HmacSHA256Sign(secret, data)
 }
 
-func RSASignParam(privateKey string, params map[string]string) ([]byte,error) {
+func RSASignParam(privateKey string, params map[string]string) ([]byte, error) {
 	pk, err := rsa.ToPrivateKey([]byte(privateKey))
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	return rsa.Sign(pk, []byte(crypto.SHA256(ParamToString(params))))
 }
