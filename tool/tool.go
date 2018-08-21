@@ -317,7 +317,12 @@ func ToValue(value string, decimals int) string {
 	if strings.Contains(value, ".") {
 		index := strings.Index(value, ".")
 		suffix := Substr(value, index+1, len(value)-index-1)
-		suffix = LeftPadString(suffix, "0", decimals)
+		if len(suffix) > decimals {
+			fmt.Println("decimals: ", suffix, Substr(suffix, 0, decimals), Substr(suffix, decimals, len(suffix)-decimals))
+			suffix = Substr(suffix, 0, decimals) + "." + Substr(suffix, decimals, len(suffix)-decimals)
+		} else {
+			suffix = LeftPadString(suffix, "0", decimals)
+		}
 		return Substr(value, 0, index) + suffix
 	}
 	return LeftPadString(value, "0", decimals+len(value))

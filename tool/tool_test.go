@@ -2,15 +2,15 @@ package tool
 
 import (
 	"fmt"
-	"log"
-	"testing"
 	"regexp"
+	"strconv"
+	"testing"
 )
 
 func Test_IntToHex(t *testing.T) {
 	//var hexStr = "0x00000000000000000000000000000000000000000000000000000000000000050000000000000000000000002333e8406e0a80700f9c787cb96d1053ccd437550000000000000000000000000000000000000000000000000000000059060a00000000000000000000000000000000000000000000000000000000000000001e00000000000000000000000000000000000000000000000000000000000f4240000000000000000000000000ac00155169e278c2f1af7435e0b5407e73040dd9"
 	//dMap := ParseEventData(hexStr)
-	log.Printf("dMap: %s", IntToHex(19))
+	//log.Printf("dMap: %s", IntToHex(19))
 	//bigInt := new(big.Int)
 	//bigInt := HexToBigInt(hexStr)
 
@@ -18,6 +18,20 @@ func Test_IntToHex(t *testing.T) {
 
 	//text, err := bigInt.MarshalText()
 	//log.Printf("bigNum: %s", HexToIntStr(hexStr))
+
+	fmt.Println(ToValue("0.1", 4))
+	fmt.Println(ToValue("0.1234", 4))
+	fmt.Println(ToValue("0.12345678", 4))
+	fmt.Println(ToValue("1", 4))
+	fmt.Println(ToValue("1.0", 4))
+	fmt.Println(ToValue("1.1", 4))
+	fmt.Println(ToValue("1.1234", 4))
+	fmt.Println(ToValue("1.12345678", 4))
+	fmt.Println(ToValue("1234.1", 4))
+	fmt.Println(ToValue("1234.1234", 4))
+	fmt.Println(ToValue("1234.12345678", 4))
+	fmt.Println(strconv.ParseFloat("01234.5678", 64))
+
 }
 
 func Test_ParamToStringWithSort(t *testing.T) {
@@ -29,7 +43,7 @@ func Test_ParamToStringWithSort(t *testing.T) {
 	// m["cool"] = "echo cool"
 	// reply := ParamToStringWithSort(m)
 	// log.Printf("Reply: %s", reply)
-	fmt.Println(Guid())
+	//fmt.Println(Guid())
 	fmt.Println(EtherToHex("10000000"))
 	fmt.Println(EtherToHex("1000.00001"))
 	fmt.Println(EtherToHex("1"))
@@ -42,7 +56,6 @@ func Test_ParamToStringWithSort(t *testing.T) {
 	fmt.Println(ToBalance("10100000000000000000", 18)) //10.1eth
 	fmt.Println(ToBalance("10000000000000000", 18))    //0.011eth
 }
-
 
 // var isAddress = function (address) {
 //     if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
@@ -76,9 +89,9 @@ func Test_IsAddress(t *testing.T) {
 	t.Error(isAddress(addr))
 }
 
-func isAddress(addr string)bool{
+func isAddress(addr string) bool {
 	reg := regexp.MustCompile("/^(0x)?[0-9a-f]{40}$/")
-	if(reg.FindString(addr)!=""){
+	if reg.FindString(addr) != "" {
 		return false
 	}
 	return true

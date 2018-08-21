@@ -59,11 +59,39 @@ func (self *RedisClient) Set(key string, value string) (string, error) {
 	return redis.String(rc.Do("SET", key, value))
 }
 
-func (self *RedisClient) SetWithExpire(key string, value string, expireTime int) (string, error) {
+func (self *RedisClient) SetWithExpire(key string, value string, seconds int) (string, error) {
 	rc := self.redisPool.Get()
 	defer rc.Close()
 
-	return redis.String(rc.Do("SET", key, value, "EX", expireTime))
+	return redis.String(rc.Do("SET", key, value, "EX", seconds))
+}
+
+func (self *RedisClient) Expire(key string, seconds int) (string, error) {
+	rc := self.redisPool.Get()
+	defer rc.Close()
+
+	return redis.String(rc.Do("EXPIRE", seconds))
+}
+
+func (self *RedisClient) Del(key string) (int, error) {
+	rc := self.redisPool.Get()
+	defer rc.Close()
+
+	return redis.Int(rc.Do("DEL", key))
+}
+
+func (self *RedisClient) Incr(key string) (int, error) {
+	rc := self.redisPool.Get()
+	defer rc.Close()
+
+	return redis.Int(rc.Do("INCR", key))
+}
+
+func (self *RedisClient) Decr(key string) (string, error) {
+	rc := self.redisPool.Get()
+	defer rc.Close()
+
+	return redis.String(rc.Do("DECR", key))
 }
 
 func (self *RedisClient) Close() error {
