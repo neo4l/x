@@ -18,8 +18,6 @@ import (
 	"time"
 
 	"sort"
-
-	"github.com/tealeg/xlsx"
 )
 
 func IsEmpty(obj interface{}) bool {
@@ -425,23 +423,4 @@ func ReadLines(path string) (lines []string, err error) {
 		err = nil
 	}
 	return
-}
-
-func ExportExcl(items []string, fileName string) error {
-	file := xlsx.NewFile()
-	sheet, err := file.AddSheet("Sheet1")
-	if err != nil {
-		return err
-	}
-
-	for _, item := range items {
-		row := sheet.AddRow()
-		values := strings.Split(item, ",")
-		for _, value := range values {
-			cell := row.AddCell()
-			cell.Value = value
-		}
-	}
-
-	return file.Save(fileName)
 }
